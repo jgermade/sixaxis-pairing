@@ -6,7 +6,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build.githubPages": "vite build --base=/sixaxispairtool/",
+    "build.githubPages": "vite build --base=/sixaxis-pairing-tool/",
     "preview": "vite preview"
   },
   "dependencies": {
