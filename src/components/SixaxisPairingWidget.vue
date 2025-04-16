@@ -62,6 +62,15 @@ const savePairingMac = async () => {
       sixaxis.isSaving = false
     })
 }
+
+const macMask = ({ target: { value } }) => {
+  sixaxis.newPairingMac = (
+    value
+      .toUpperCase()
+      .replace(/[^0-9A-F]/g, '')
+      .match(/..?/g) ?? []
+  ).join(':')
+}
 </script>
 
 <template>
@@ -86,7 +95,13 @@ const savePairingMac = async () => {
       </div>
     </header>
     <form v-if="sixaxis.isConnected && !sixaxis.isLoading" @submit.prevent="savePairingMac()">
-      <input v-model="sixaxis.newPairingMac" placeholder="00:00:00:00:00:00">
+      <input
+        v-model="sixaxis.newPairingMac"
+        pattern="^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$"
+        placeholder="00:00:00:00:00:00"
+        maxlength="17"
+        @input="macMask"
+      >
 
       <button type="submit" save-pairing-mac :disabled="sixaxis.isSaving || !sixaxis.newPairingMac">
         save pairing MAC
