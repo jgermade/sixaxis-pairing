@@ -6,10 +6,6 @@ import { SixaxisController } from '../services/sixaxis.service'
 
 const sixaxisCtrl = new SixaxisController()
 
-const {
-  PROD: IS_PROD,
-} = import.meta.env
-
 const sixaxis = reactive({
     isConnecting: false,
     isConnected: false,
@@ -51,15 +47,12 @@ const disconnectDevice = async () => {
 }
 
 const savePairingMac = async () => {
-  if (IS_PROD) {
-    alert('still not working')
-    return
-  }
-
   sixaxis.isSaving = true
+  
   sixaxisCtrl.setPairedMac(sixaxis.newPairingMac)
     .then(async () => {
       sixaxis.pairedMac = await sixaxisCtrl.getPairedMacAddress()
+      sixaxis.newPairingMac = ''
     })
     .catch(err => {
       console.error(err)
@@ -99,8 +92,6 @@ const savePairingMac = async () => {
         save pairing MAC
       </button>
     </form>
-    <br />
-    <div danger>still not working, not saving MAC propertly</div>
   </div>
 </template>
 
@@ -153,9 +144,5 @@ input
   
   li + li
     margin-top: 12px
-
-[danger]
-  color: firebrick
-  font-weight: bold
 </style>
 
