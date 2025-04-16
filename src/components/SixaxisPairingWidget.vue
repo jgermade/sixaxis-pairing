@@ -88,7 +88,7 @@ const savePairingMac = async () => {
             <div v-if="!sixaxis.isLoading" device-mac>MAC: {{ sixaxis.controllerMac }}</div>
           </li>
           <li v-if="sixaxis.isLoading">loading...</li>
-          <li v-else>paired: <strong>{{ sixaxis.pairedMac }}</strong></li>
+          <li v-else>pairing: <strong>{{ sixaxis.pairedMac }}</strong></li>
         </ul>
       </div>
     </header>
