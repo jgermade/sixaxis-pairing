@@ -81,7 +81,7 @@ const macMask = ({ target: { value } }) => {
         @click="sixaxis.isConnected ? disconnectDevice() : connectDevice()"
         :disabled="sixaxis.isConnecting || sixaxis.isLoading"
       >
-        {{ sixaxis.isConnected ? 'Disconnect' : 'Connect' }} sixaxis
+        {{ sixaxis.isConnected ? 'Disconnect' : 'Connect' }} PS3 sixaxis
       </button>
       <div v-if="sixaxis.isConnected">
         <ul device-info>
