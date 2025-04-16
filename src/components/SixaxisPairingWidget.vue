@@ -64,12 +64,15 @@ const savePairingMac = async () => {
 }
 
 const macMask = ({ target: { value } }) => {
-  sixaxis.newPairingMac = (
+  const endsWithColon = /:$/.test(value)
+  const newValue = (
     value
       .toUpperCase()
       .replace(/[^0-9A-F]/g, '')
       .match(/..?/g) ?? []
   ).join(':')
+
+  sixaxis.newPairingMac = newValue + ((newValue.length%3 === 2) && endsWithColon ? ':' : '')
 }
 </script>
 
