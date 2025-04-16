@@ -6,6 +6,10 @@ import { SixaxisController } from '../services/sixaxis.service'
 
 const sixaxisCtrl = new SixaxisController()
 
+const {
+  PROD: IS_PROD,
+} = import.meta.env
+
 const sixaxis = reactive({
     isConnecting: false,
     isConnected: false,
@@ -47,6 +51,11 @@ const disconnectDevice = async () => {
 }
 
 const savePairingMac = async () => {
+  if (IS_PROD) {
+    alert('still not working')
+    return
+  }
+
   sixaxis.isSaving = true
   sixaxisCtrl.setPairedMac(sixaxis.newPairingMac)
     .then(async () => {
@@ -70,7 +79,7 @@ const savePairingMac = async () => {
         @click="sixaxis.isConnected ? disconnectDevice() : connectDevice()"
         :disabled="sixaxis.isConnecting || sixaxis.isLoading"
       >
-        {{ sixaxis.isConnected ? 'Disconnect' : 'Connect' }}
+        {{ sixaxis.isConnected ? 'Disconnect' : 'Connect' }} sixaxis
       </button>
       <div v-if="sixaxis.isConnected">
         <ul device-info>
@@ -87,15 +96,18 @@ const savePairingMac = async () => {
       <input v-model="sixaxis.newPairingMac" placeholder="00:00:00:00:00:00">
 
       <button type="submit" save-pairing-mac :disabled="sixaxis.isSaving || !sixaxis.newPairingMac">
-        Set MAC to sixaxis
+        save pairing MAC
       </button>
     </form>
+    <br />
+    <div danger>still not working, not saving MAC propertly</div>
   </div>
 </template>
 
 <style lang="sass" scoped>
 [sixaxis-widget]
   background: white
+  color: #333a3e
   width: 400px
   padding: 32px
 
@@ -141,5 +153,9 @@ input
   
   li + li
     margin-top: 12px
+
+[danger]
+  color: firebrick
+  font-weight: bold
 </style>
 
