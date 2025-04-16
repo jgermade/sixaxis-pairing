@@ -59,7 +59,7 @@ export class SixaxisController {
       buffer[i + 2] = macBytes[i]
     }
   
-    await device.sendFeatureReport(PAIRED_MAC_REPORT_ID, buffer)
+    await this.device.sendFeatureReport(PAIRED_MAC_REPORT_ID, buffer)
     // console.log("Paired MAC address set.")
   }
 
