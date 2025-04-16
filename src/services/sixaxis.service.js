@@ -29,7 +29,13 @@ export class SixaxisController {
   }
 
   async #getMacAddress (reportId, sliceFrom, sliceTo) {
-    const report = await this.device.receiveFeatureReport(reportId);
+    const report = await this.device.receiveFeatureReport(reportId)
+
+    console.log('full report', {
+      buffer: report.buffer,
+      array: new Uint8Array(report.buffer),
+      str: [...new Uint8Array(report.buffer)].map(b => b.toString(16).padStart(2, '0'))
+    })
 
     const mac = [...new Uint8Array(report.buffer.slice(sliceFrom, sliceTo))]
       .map(b => b.toString(16).padStart(2, '0'))
