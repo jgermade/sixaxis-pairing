@@ -3,6 +3,10 @@
   line-height: 1.5
   font-weight: 400
 
+  font-size: 4vw
+  @media (min-width: 400px)
+    font-size: 16px
+
   color-scheme: light dark
   // color: rgba(255, 255, 255, 0.87)
   background-color: light-dark(#ccc, #333)
@@ -21,3 +25,6 @@ html, body
 
 *, *::before, *::after
   box-sizing: border-box
+
+input, button, textarea, select
+  font: inherit

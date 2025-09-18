@@ -28,13 +28,17 @@ const connectDevice = async () => {
     .finally(() => {
       sixaxis.isConnecting = false
     })
-    .then(async () => {
-      sixaxis.isLoading = true
-      sixaxis.controllerMac = await sixaxisCtrl.getSelfMacAddress()
-      sixaxis.pairedMac = await sixaxisCtrl.getPairedMacAddress()
-      sixaxis.isLoading = false
-    })
+    .then(() => updateDeviceInfo())
     .catch(() => {})
+}
+
+const updateDeviceInfo = async () => {
+  if (!sixaxis.isConnected) return
+
+  sixaxis.isLoading = true
+  sixaxis.controllerMac = await sixaxisCtrl.getSelfMacAddress()
+  sixaxis.pairedMac = await sixaxisCtrl.getPairedMacAddress()
+  sixaxis.isLoading = false
 }
 
 const disconnectDevice = async () => {
@@ -79,13 +83,31 @@ const macMask = ({ target: { value } }) => {
 <template>
   <div sixaxis-widget>
     <header>
-      <button type="button" sixaxis-connect
-        :class="{ connected: sixaxis.isConnected }"
-        @click="sixaxis.isConnected ? disconnectDevice() : connectDevice()"
-        :disabled="sixaxis.isConnecting || sixaxis.isLoading"
-      >
-        {{ sixaxis.isConnected ? 'Disconnect' : 'Connect' }} PS3 sixaxis
-      </button>
+      <div v-if="!sixaxis.isConnected" actions>
+        <button type="button" sixaxis-connect
+          :class="{ connected: sixaxis.isConnected }"
+          @click="connectDevice()"
+          :disabled="sixaxis.isConnecting || sixaxis.isLoading"
+        >
+          {{ sixaxis.isConnecting ? 'connecting...' : 'connect PS3 sixaxis' }}
+        </button>
+      </div>
+      <div v-else actions>
+        <button type="button" sixaxis-update
+          :class="{ connected: sixaxis.isConnected }"
+          @click="updateDeviceInfo()"
+          :disabled="sixaxis.isConnecting || sixaxis.isLoading"
+        >
+          {{ sixaxis.isLoading ? 'loading...' : 'refresh' }}
+        </button>
+        <button type="button" sixaxis-disconnect
+          :class="{ connected: sixaxis.isConnected }"
+          @click="sixaxis.isConnected ? disconnectDevice() : connectDevice()"
+          :disabled="sixaxis.isConnecting || sixaxis.isLoading"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
       <div v-if="sixaxis.isConnected">
         <ul device-info>
           <li>
@@ -117,50 +139,76 @@ const macMask = ({ target: { value } }) => {
 [sixaxis-widget]
   background: white
   color: #333a3e
-  width: 400px
-  padding: 32px
+  // width: 400px
+  padding: 2rem
 
 [sixaxis-widget], header, section, form
   display: flex
   flex-direction: column
-  gap: 12px
+  gap: .75rem
 
-button[sixaxis-connect], button[save-pairing-mac]
-  width: 100%
-  height: 40px
-  background: royalblue
-  color: white
-  border: 0
-  border-radius: 3px
-  cursor: pointer
+[actions]
+  display: flex
+  gap: .5rem
 
-  &[disabled]
-    opacity: 0.6
+  button[sixaxis-connect],
+  button[save-pairing-mac],
+  button[sixaxis-disconnect],
+  button[sixaxis-update]
+    width: 100%
+    height: 2.5rem
+    background: royalblue
+    color: white
+    border: 0
+    border-radius: .1875rem
+    cursor: pointer
 
-  &.connected
-    background: grey
-    
-    &:hover
-      background: firebrick
+    &[disabled]
+      opacity: 0.6
+
+    &[sixaxis-connect]
+      &.connected
+        background: grey
+        
+        &:hover
+          background: firebrick
+
+    &[sixaxis-update]
+      &:hover
+        background: dimgray
+
+      &, &:active
+        background: grey
+
+    &[sixaxis-disconnect]
+      width: 2.5rem
+      flex: 0 0 auto
+      &.connected
+        background: firebrick
+
+      svg
+        vertical-align: middle
+        pointer-events: none
   
 input
   width: 100%
-  height: 40px
+  height: 2.5rem
   background: white
   color: #333a3e
   outline: 0
-  border: 2px solid royalblue
-  border-radius: 3px
-  padding: 0 12px
+  border: .125rem solid royalblue
+  border-radius: .1875rem
+  padding: 0 .75rem
 
 [device-info]
   margin: 0
+  padding-left: 1.4rem
 
   [device-mac]
-    font-size: 10px
+    font-size: .625rem
     color: #777
   
   li + li
-    margin-top: 12px
+    margin-top: .75rem
 </style>
 
