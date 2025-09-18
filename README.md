@@ -1,5 +1,5 @@
 
-[![sixaxis pairing webtool](./static/images/sixaxis-pairing-github-readme.png)](jgermade.github.io/sixaxis-pairing/)
+[![sixaxis pairing webtool](./static/images/sixaxis-pairing-github-readme.png)](https://jgermade.github.io/sixaxis-pairing/)
 
 A **web**tool for viewing and setting the bluetooth address in a sixaxis controller is currently paired with.
 
