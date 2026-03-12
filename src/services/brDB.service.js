@@ -5,6 +5,7 @@ import { getRxStorageLocalstorage } from 'rxdb/plugins/storage-localstorage'
 import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode'
 import { addRxPlugin } from 'rxdb/plugins/core'
 
+import { wrappedValidateAjvStorage } from 'rxdb/plugins/validate-ajv'
 
 if (process.env.NODE_ENV === 'development') {
   addRxPlugin(RxDBDevModePlugin)
@@ -14,9 +15,13 @@ export async function initDatabase({
   name = 'blueretrodb',
   version = 0,
 } = {}) {
+  const storage = wrappedValidateAjvStorage({
+    storage: getRxStorageLocalstorage()
+  })
+
   const db = await createRxDatabase({
     name,          // name of the database
-    storage: getRxStorageLocalstorage(),
+    storage,
     // password: 'myPassword',    // optional encryption password
     // multiInstance: true,       // multi-tab support
     // eventReduce: true          // optimize event handling
@@ -30,7 +35,10 @@ export async function initDatabase({
         primaryKey: 'id',
         type: 'object',
         properties: {
-          id: { type: 'string' },
+          id: {
+            type: 'string',
+            maxLength: 255,
+          },
           name: { type: 'string' },
           mac: { type: 'string' },
         }
@@ -44,7 +52,7 @@ export async function initDatabase({
 // rxdb service for storing paired devices and their associated data
 export class BlueRetroDBService {
   constructor() {
-    this.dbName = 'BlueRetroDB';
+    this.dbName = 'blueretrodb';
     this.dbVersion = 0;
     this.db = null;
   }
