@@ -7,14 +7,14 @@ import { SixaxisController } from '../services/sixaxis.service'
 const sixaxisCtrl = new SixaxisController()
 
 const sixaxis = reactive({
-    isConnecting: false,
-    isConnected: false,
-    isLoading: false,
-    productName: null,
-    controllerMac: null,
-    pairedMac: null,
-    newPairingMac: '',
-    isSaving: false,
+  isConnecting: false,
+  isConnected: false,
+  isLoading: false,
+  productName: null,
+  controllerMac: null,
+  pairedMac: null,
+  newPairingMac: '',
+  isSaving: false,
 })
 
 const connectDevice = async () => {
@@ -43,7 +43,7 @@ const updateDeviceInfo = async () => {
 
 const disconnectDevice = async () => {
   sixaxis.isConnecting = true
-  await sixaxisCtrl.close()
+  sixaxisCtrl.close()
   sixaxis.isConnecting = false
 
   sixaxis.productName = null
