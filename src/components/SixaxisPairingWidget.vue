@@ -2,6 +2,8 @@
 <script setup>
 import { reactive } from 'vue'
 
+import DS3 from './DS3.vue'
+
 import { SixaxisController } from '../services/sixaxis.service'
 
 const sixaxisCtrl = new SixaxisController()
@@ -38,6 +40,7 @@ const updateDeviceInfo = async () => {
   sixaxis.isLoading = true
   sixaxis.controllerMac = await sixaxisCtrl.getSelfMacAddress()
   sixaxis.pairedMac = await sixaxisCtrl.getPairedMacAddress()
+  sixaxis.newPairingMac = sixaxis.pairedMac
   sixaxis.isLoading = false
 }
 
@@ -56,7 +59,7 @@ const savePairingMac = async () => {
   sixaxisCtrl.setPairedMac(sixaxis.newPairingMac)
     .then(async () => {
       sixaxis.pairedMac = await sixaxisCtrl.getPairedMacAddress()
-      sixaxis.newPairingMac = ''
+      sixaxis.newPairingMac = sixaxis.pairedMac
     })
     .catch(err => {
       console.error(err)
@@ -82,6 +85,14 @@ const macMask = ({ target: { value } }) => {
 
 <template>
   <div sixaxis-widget>
+    <div gamepad-preview>
+      <DS3 theme="dark" :connected="sixaxis.isConnected" />
+      <div v-if="sixaxis.isConnected" device-info>
+        <div device-name>{{ sixaxis.productName }}</div>
+        <div v-if="!sixaxis.isLoading" device-mac>MAC: {{ sixaxis.controllerMac }}</div>
+      </div>
+    </div>
+
     <header>
       <div v-if="!sixaxis.isConnected" actions>
         <button type="button" sixaxis-connect
@@ -92,31 +103,23 @@ const macMask = ({ target: { value } }) => {
           {{ sixaxis.isConnecting ? 'connecting...' : 'connect PS3 sixaxis' }}
         </button>
       </div>
-      <div v-else actions>
-        <button type="button" sixaxis-update
-          :class="{ connected: sixaxis.isConnected }"
-          @click="updateDeviceInfo()"
-          :disabled="sixaxis.isConnecting || sixaxis.isLoading"
-        >
-          {{ sixaxis.isLoading ? 'loading...' : 'refresh' }}
-        </button>
-        <button type="button" sixaxis-disconnect
-          :class="{ connected: sixaxis.isConnected }"
-          @click="sixaxis.isConnected ? disconnectDevice() : connectDevice()"
-          :disabled="sixaxis.isConnecting || sixaxis.isLoading"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div v-if="sixaxis.isConnected">
-        <ul device-info>
-          <li>
-            <div device-name>{{ sixaxis.productName }}</div>
-            <div v-if="!sixaxis.isLoading" device-mac>MAC: {{ sixaxis.controllerMac }}</div>
-          </li>
-          <li v-if="sixaxis.isLoading">loading...</li>
-          <li v-else>pairing: <strong>{{ sixaxis.pairedMac }}</strong></li>
-        </ul>
+      <div v-else>
+        <div actions>
+          <button type="button" sixaxis-update
+            :class="{ connected: sixaxis.isConnected }"
+            @click="updateDeviceInfo()"
+            :disabled="sixaxis.isConnecting || sixaxis.isLoading"
+          >
+            {{ sixaxis.isLoading ? 'loading...' : 'refresh' }}
+          </button>
+          <button type="button" sixaxis-disconnect
+            :class="{ connected: sixaxis.isConnected }"
+            @click="sixaxis.isConnected ? disconnectDevice() : connectDevice()"
+            :disabled="sixaxis.isConnecting || sixaxis.isLoading"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       </div>
     </header>
     <form v-if="sixaxis.isConnected && !sixaxis.isLoading" @submit.prevent="savePairingMac()">
@@ -126,9 +129,15 @@ const macMask = ({ target: { value } }) => {
         placeholder="00:00:00:00:00:00"
         maxlength="17"
         @input="macMask"
+        @keyup.esc="sixaxis.newPairingMac = sixaxis.pairedMac"
       >
 
-      <button type="submit" save-pairing-mac :disabled="sixaxis.isSaving || !sixaxis.newPairingMac">
+      <button type="submit" save-pairing-mac :disabled="
+        sixaxis.isSaving ||
+        !sixaxis.newPairingMac ||
+        sixaxis.newPairingMac === sixaxis.pairedMac ||
+        !/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/.test(sixaxis.newPairingMac)
+      ">
         save pairing MAC
       </button>
     </form>
@@ -137,7 +146,6 @@ const macMask = ({ target: { value } }) => {
 
 <style lang="sass" scoped>
 [sixaxis-widget]
-  background: white
   color: #333a3e
   // width: 400px
   padding: 2rem
@@ -200,15 +208,23 @@ input
   border-radius: .1875rem
   padding: 0 .75rem
 
+[gamepad-preview]
+  position: relative
+
 [device-info]
-  margin: 0
-  padding-left: 1.4rem
+  position: absolute
+  left: 0
+  right: 0
+  bottom: 0
+  text-align: center
+  padding: 1rem
+  // padding-left: 1.4rem
 
   [device-mac]
-    font-size: .625rem
+    // font-size: .625rem
     color: #777
   
-  li + li
-    margin-top: .75rem
+  // li + li
+  //   margin-top: .75rem
 </style>
 

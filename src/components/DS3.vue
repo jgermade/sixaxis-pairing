@@ -2,6 +2,17 @@
 <script setup>
 import { reactive } from 'vue'
 
+defineProps({
+  theme: {
+    type: String,
+    default: 'light',
+  },
+  connected: {
+    type: Boolean,
+    default: false,
+  },
+})
+
 const BTN_UP = 12
 const BTN_DOWN = 13
 const BTN_LEFT = 14
@@ -45,6 +56,8 @@ const updateGamepadStatus = () => {
   const currentGamepad = navigator.getGamepads()
     .find(gp => gp && gp.connected && gp.id.toLowerCase().includes("playstation"))
 
+  if (currentGamepad) console.log('Current gamepad state:', currentGamepad)
+
   const buttonsValues = currentGamepad
     ? currentGamepad.buttons.map(button => button.pressed)
     : Array(17).fill(false)
@@ -86,7 +99,9 @@ updateGamepadStatus()
 </script>
 
 <template>
-  <div class="ds3-widget">
+  <div class="ds3-widget" :class="[theme, {
+    'connected': connected,
+  }]">
     <svg version="1.1" id="_x34_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 512 340"  xml:space="preserve">
       <g class="parts">
@@ -229,28 +244,45 @@ updateGamepadStatus()
 </template>
 
 <style lang="sass" scoped>
+
+.ds3-widget
+  --btn-color: #777778
+  --gamepad-bg: #c2c1c1
+  --gamepad-front-bg: #e5e5e4
+  --stick-ring: #cbc9c9
+  --logo-color: #949394
+
+  &.dark
+    --btn-color: #4a4a4a
+    --gamepad-bg: #7b7b7b
+    --gamepad-front-bg: #9e9e9e
+    --stick-ring: #8c8c8c
+    --logo-color: #6b6b6b
+
+  &.connected
+    --logo-color: royalblue
+    // filter: drop-shadow( 0 0 2px #57c0eb)
   
 .parts
   .backface
-    fill: #bcbcbc
-    fill: color-mix(in srgb, #bcbcbc, black 20%)
+    fill: color-mix(in srgb, var(--gamepad-bg), black 5%)
 
   .holder, .shoulder
-    fill: #c2c1c1
+    fill: var(--gamepad-bg)
   
   .shoulder.pressed
-    fill: #777778
+    fill: var(--btn-color)
 
   .front
-    fill: #E5E5E4
+    fill: var(--gamepad-front-bg)
 
   .btn
-    fill: #777778
+    fill: var(--btn-color)
     &.pressed
-      fill: color-mix(in srgb, #777778, black 30%)
+      fill: color-mix(in srgb, var(--btn-color), black 30%)
 
   .stick .ring
-    fill: #CBCBCB
+    fill: var(--stick-ring)
 
   .abxy
     .symbol.triangle
@@ -266,6 +298,6 @@ updateGamepadStatus()
       fill: #CE7FB2
 
   .logo
-    fill: #949394
+    fill: var(--logo-color)
 
 </style>

@@ -1,5 +1,5 @@
 #!make
-SHELL := env PATH=./node_modules/.bin:$(PATH) /bin/bash -O extglob
+# SHELL := env PATH=./node_modules/.bin:$(PATH) /bin/bash -O extglob
 
 .PHONY: install up
 

@@ -1,5 +1,4 @@
 <script setup>
-import DS3 from './components/DS3.vue'
 import SixaxisPairingWidget from './components/SixaxisPairingWidget.vue'
 import BluetoothDeviceSelector from './components/BluetoothDeviceSelector.vue';
 </script>
@@ -7,8 +6,7 @@ import BluetoothDeviceSelector from './components/BluetoothDeviceSelector.vue';
 <template>
   <main>
     <div container>
-      <DS3 />
-      <div logo></div>
+      <!-- <div logo></div> -->
       <SixaxisPairingWidget />
       <BluetoothDeviceSelector />
     </div>

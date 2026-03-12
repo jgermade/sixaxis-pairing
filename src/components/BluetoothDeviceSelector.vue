@@ -1,6 +1,15 @@
 
 <script setup>
+import { ref } from 'vue'
+
 import { BlueretroService } from '../services/blueretro.service'
+import { blueretroDBService } from '../services/brDB.service'
+
+const devices = ref([])
+
+blueretroDBService.onUpdateList((updatedDevices) => {
+  devices.value = updatedDevices
+})
 
 const selectDevice = async () => {
   const device = await BlueretroService.requestBlueretroDevice()
@@ -12,6 +21,12 @@ const selectDevice = async () => {
     id: device.id,
     mac,
   })
+
+  await blueretroDBService.addDevice({
+    id: device.id,
+    name: device.name,
+    mac,
+  })
 }
 </script>
 
@@ -21,6 +36,19 @@ const selectDevice = async () => {
       <img src="/images/Bluetooth.svg" alt="Bluetooth Icon" class="bluetooth" />
       <img src="/images/BRE_Logo_Color.png" alt="BlueRetro Logo" class="blueretro" />
     </button>
+  </div>
+
+  <div style="margin-top: 20px; text-align: center; font-size: 14px; color: #666;">
+    Click the button above to select a Bluetooth device and save it to the database.
+  </div>
+
+  <div class="devices-list">
+    <h3>Paired Devices:</h3>
+    <ul>
+      <li v-for="device in devices" :key="device.id">
+        {{ device.name }} (MAC: {{ device.mac }})
+      </li>
+    </ul>
   </div>
 </template>
 
