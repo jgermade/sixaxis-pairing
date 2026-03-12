@@ -4,7 +4,7 @@
 .PHONY: install up
 
 install:; npm install
-node_modules: install
+node_modules:; npm install
 i: install
 
 up: node_modules

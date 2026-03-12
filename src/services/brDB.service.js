@@ -1,6 +1,6 @@
 
-import { createRxDatabase } from 'rxdb';
-import { getRxStorageLocalstorage } from 'rxdb/plugins/storage-localstorage';
+import { createRxDatabase } from 'rxdb/plugins/core'
+import { getRxStorageLocalstorage } from 'rxdb/plugins/storage-localstorage'
 
 import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode'
 import { addRxPlugin } from 'rxdb/plugins/core'
@@ -18,8 +18,8 @@ export async function initDatabase({
     name,          // name of the database
     storage: getRxStorageLocalstorage(),
     // password: 'myPassword',    // optional encryption password
-    multiInstance: true,       // multi-tab support
-    eventReduce: true          // optimize event handling
+    // multiInstance: true,       // multi-tab support
+    // eventReduce: true          // optimize event handling
   });
  
   await db.addCollections({
