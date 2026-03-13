@@ -12,13 +12,11 @@ const colorScheme = ref(sessionStorage.getItem('colorScheme') || 'auto')
 
 watch(colorScheme, (newScheme) => {
   sessionStorage.setItem('colorScheme', newScheme)
-})
 
-const effectiveColorScheme = computed(() => {
-  return colorScheme.value === 'auto'
+  document.documentElement.style.colorScheme = newScheme === 'auto'
     ? 'light dark'
-    : colorScheme.value
-})
+    : newScheme
+}, { immediate: true })
 
 // ----
 
@@ -134,8 +132,6 @@ const loginGoogle = () => {
 </template>
 
 <style lang="sass" scoped>
-:root
-  color-scheme: v-bind(effectiveColorScheme)
 
 button[color-scheme-selector]
   position: fixed
