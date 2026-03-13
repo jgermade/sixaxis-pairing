@@ -33,9 +33,9 @@ gamepadDS3Service
 </script>
 
 <template>
-  <div class="ds3-widget" :class="[theme, {
+  <div class="ds3-widget" :class="{
     'connected': isConnected,
-  }]">
+  }">
     <svg version="1.1" id="_x34_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 512 340"  xml:space="preserve">
       <g class="parts">
@@ -225,34 +225,44 @@ gamepadDS3Service
 
   &.connected .connection-status
     fill: royalblue
-    // filter: drop-shadow( 0 0 2px #57c0eb)
+    filter: drop-shadow(0 -2px 3px royalblue)
   
 .parts
+  user-select: none
+
   .backface
     // fill: color-mix(in srgb, var(--gamepad-bg), black 5%)
     fill: var(--backface-bg)
 
   .holder, .shoulder
     fill: var(--gamepad-bg)
-  
-  .shoulder.pressed
-    fill: var(--btn-color)
 
-  .shoulder.triggered
-    transform: translateY(8px)
+  .shoulder
+    cursor: pointer
+  
+    &.pressed, &:active
+      fill: var(--btn-color)
+
+    &.triggered
+      transform: translateY(8px)
 
   .front
     fill: var(--gamepad-front-bg)
 
   .btn
     fill: var(--btn-color)
-    &.pressed
+    cursor: pointer
+
+    &.pressed, &:active
       fill: color-mix(in srgb, var(--btn-color), black 30%)
 
   .stick .ring
     fill: var(--stick-ring)
 
   .abxy
+    .symbol
+      pointer-events: none
+    
     .symbol.triangle
       fill: #7AC493
 

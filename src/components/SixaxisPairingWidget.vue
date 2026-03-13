@@ -86,7 +86,7 @@ const macMask = ({ target: { value } }) => {
 <template>
   <div sixaxis-widget class="dark">
     <div gamepad-preview>
-      <DS3 theme="light" :connected="sixaxis.isConnected" />
+      <DS3 :connected="sixaxis.isConnected" />
       <div v-if="sixaxis.isConnected" device-info>
         <div device-name>{{ sixaxis.productName }}</div>
         <div v-if="!sixaxis.isLoading" device-mac>MAC: {{ sixaxis.controllerMac }}</div>

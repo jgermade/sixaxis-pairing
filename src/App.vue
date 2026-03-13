@@ -6,6 +6,7 @@ import RegisterInSixasis from './components/RegisterInSixasis.vue'
 import BluetoothDeviceSelector from './components/BluetoothDeviceSelector.vue'
 
 import { sixasisService } from './services/sixaxis.service'
+import { googleLoginService } from './services/googleLogin.service'
 
 const colorScheme = ref(sessionStorage.getItem('colorScheme') || 'auto')
 
@@ -17,12 +18,13 @@ watch(colorScheme, (newScheme) => {
 
 const scope = reactive({
   isConnecting: false,
-  currentDevice: null,
-  selectedDevice: null,
+  currentDS3Device: null,
+  currentTargetDevice: null,
+  pairedMacUpdatedInfo: false,
 })
 
 sixasisService.onConnect((device) => {
-  scope.currentDevice = device
+  scope.currentDS3Device = device
 })
 
 const connectSixaxis = async () => {
@@ -50,12 +52,27 @@ const refreshSixaxis = async () => {
 
 const registerInSixasis = async () => {
   try {
-    await sixasisService.setPairedMac()
-    alert('Registered in Sixaxis successfully!')
+    await sixasisService.setPairedMac(scope.currentTargetDevice.mac)
+
+    scope.currentDS3Device.pairedMacAddress = scope.currentTargetDevice.mac
+
+    scope.pairedMacUpdatedInfo = true
+    setTimeout(() => {
+      scope.pairedMacUpdatedInfo = false
+    }, 2000)
   } catch (error) {
     console.error('Failed to register in Sixaxis:', error)
-    alert('Failed to register in Sixaxis. See console for details.')
   }
+}
+
+const loginGoogle = () => {
+  googleLoginService.login()
+    .then(() => {
+      console.log('Logged in to Google')
+    })
+    .catch((error) => {
+      console.error('Google login failed:', error)
+    })
 }
 
 
@@ -75,27 +92,34 @@ const registerInSixasis = async () => {
         >
           {{ colorScheme }}
         </button>
+
+        <!-- <button type="button" btn-login-google @click="loginGoogle()">
+          Login Google
+        </button> -->
         <!-- <div logo></div> -->
         <SixaxisConnect
           :isConnecting="scope.isConnecting"
-          :currentDevice="scope.currentDevice"
+          :currentDevice="scope.currentDS3Device"
           @connect="connectSixaxis()"
           @refresh="refreshSixaxis()"
           @disconnect="sixasisService.close()"
         />
+        <div v-if="scope.pairedMacUpdatedInfo" paired-notification>
+          Paired MAC updated!
+        </div>
         <RegisterInSixasis
-          v-if="scope.currentDevice"
-          :disabled="!scope.selectedDevice"
-          @register="sixasisService.registerInSixasis()"
+          v-if="scope.currentDS3Device && !scope.pairedMacUpdatedInfo"
+          :disabled="!scope.currentTargetDevice"
+          @register="registerInSixasis()"
         />
-        <div v-else padding-bottom />
+        <div v-if="!scope.pairedMacUpdatedInfo && !scope.currentDS3Device" padding-bottom />
       </div>
     </section>
     <!-- <hr v-if="!scope.currentDevice" style="margin: 1rem 2rem 2rem" /> -->
     <section bluetooth-selector>
       <div container>
         <BluetoothDeviceSelector
-          @selected="device => scope.selectedDevice = device"
+          v-model="scope.currentTargetDevice"
         />
       </div>
     </section>
@@ -119,8 +143,8 @@ const registerInSixasis = async () => {
 
 button[color-scheme-selector]
   position: fixed
-  top: 20px
-  left: 20px
+  top: 1rem
+  left: 1rem
   z-index: 1000
   padding: 8px 12px
   border: none
@@ -130,6 +154,17 @@ button[color-scheme-selector]
 
   color: light-dark(#333, #c2c1c1)
   background-color: light-dark(#eee, #444)
+
+button[btn-login-google]
+  position: fixed
+  top: 2rem
+  right: 2rem
+  z-index: 1000
+  padding: 8px 12px
+  border: none
+  border-radius: 4px
+  cursor: pointer
+  font-size: 14px
 
 main
   // padding: 6vw 0
@@ -148,6 +183,12 @@ main
   [container]
     max-width: 460px
     margin: 0 auto
+
+  [paired-notification]
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 5rem
 
   // [logo]
   //   // width: 240px

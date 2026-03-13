@@ -64,8 +64,6 @@ defineProps({
   position: relative
 
   [refresh-button], [disconnect-button]
-    // position: absolute
-    // bottom: 0
     border: none
     background: transparent
     cursor: pointer
@@ -76,22 +74,18 @@ defineProps({
       width: 24px      
 
   [refresh-button]
-    // left: -2.5rem
-
     &:hover svg
       color: royalblue
 
     & svg, &:active svg
-      color: color-mix(in srgb, royalblue 60%, light-dark(white, black))
+      color: color-mix(in srgb, royalblue 60%, light-dark(white, grey))
 
   [disconnect-button]
-    // right: -2.5rem
-
     &:hover svg
       color: firebrick
 
     & svg, &:active svg
-      color: color-mix(in srgb, firebrick 60%, light-dark(white, black))
+      color: color-mix(in srgb, firebrick 60%, light-dark(white, grey))
 
 [sixaxis-connect]
   display: flex

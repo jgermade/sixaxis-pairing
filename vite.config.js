@@ -1,6 +1,7 @@
 
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+
 import vue from '@vitejs/plugin-vue'
 
 const {
@@ -8,11 +9,24 @@ const {
 } = process.env
 
 // https://vite.dev/config/
-export default defineConfig({
-  root: resolve(__dirname, 'src'),
-  publicDir: resolve(__dirname, 'static'),
-  build: {
-    outDir: resolve(__dirname, OUT_DIR),
-  },
-  plugins: [vue()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+
+  console.log('Loaded environment variables:', env)
+
+  return {
+    root: resolve(__dirname, 'src'),
+    publicDir: resolve(__dirname, 'static'),
+    build: {
+      outDir: resolve(__dirname, OUT_DIR),
+    },
+    plugins: [
+      vue(),
+    ],
+    define: {
+      global: 'globalThis',
+      'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify(env.VITE_GOOGLE_CLIENT_ID),
+    },
+    envPrefix: 'VITE_',
+  }
 })
