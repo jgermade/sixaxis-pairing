@@ -1,3 +1,4 @@
+import { blueretroDBService } from './blueretroDB.service'
 
 class GoogleLoginService {
   constructor() {
@@ -7,15 +8,26 @@ class GoogleLoginService {
   async login() {
     console.log('Initiating Google login...')
 
-    google.accounts.oauth2.initCodeClient({
-      client_id: import.meta.env.GOOGLE_CLIENT_ID,
+    const clientId = import.meta.env.GOOGLE_CLIENT_ID
+    if (!clientId) {
+      console.error('Google client ID is not configured (import.meta.env.GOOGLE_CLIENT_ID is missing).')
+      throw new Error('Google client ID is not configured')
+    }
+
+    if (typeof window === 'undefined' || !window.google || !window.google.accounts || !window.google.accounts.oauth2) {
+      console.error('Google API is not loaded on window.google.accounts.oauth2.')
+      throw new Error('Google API is not loaded')
+    }
+
+    window.google.accounts.oauth2.initCodeClient({
+      client_id: clientId,
       scope: 'https://www.googleapis.com/auth/drive.file',
       ux_mode: 'popup',
       callback: (tokenResponse) => {
         console.log('Google OAuth token obtained:', tokenResponse)
 
         blueretroDBService.initReplication({
-          oauthClientId: GOOGLE_CLIENT_ID,
+          oauthClientId: clientId,
           authToken: tokenResponse.code,
         })
           .then(() => {
