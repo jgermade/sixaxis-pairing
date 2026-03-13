@@ -127,6 +127,11 @@ const loginGoogle = () => {
           v-model="scope.currentTargetDevice"
         />
       </div>
+      <footer>
+        <a href="/privacy-policy/">Privacy Policy</a>
+        <span style="margin: 0 1rem">|</span>
+        <a href="/service-conditions/">Terms of Service</a>
+      </footer>
     </section>
   </main>
 </template>
@@ -159,6 +164,11 @@ button[btn-login-google]
   font-size: 14px
 
 main
+  min-height: 100vh
+  min-height: 100dvh
+  display: flex
+  flex-direction: column
+
   // padding: 6vw 0
 
   section[connection]
@@ -170,7 +180,11 @@ main
       padding-bottom: 2rem
 
   section[bluetooth-selector]
-    padding: 2rem 0
+    flex: 1 1 auto
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+    padding: 2rem 0 0
 
   [container]
     max-width: 460px
@@ -181,6 +195,15 @@ main
     justify-content: center
     align-items: center
     height: 5rem
+
+footer
+  position: sticky
+  bottom: 0
+  text-align: center
+  padding: 10px 0
+  
+  a
+    color: #ddd
 
   // [logo]
   //   // width: 240px
