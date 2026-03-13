@@ -12,3 +12,6 @@ up: node_modules
 
 build: node_modules
 	npm run build
+
+preview: node_modules
+	npm run preview

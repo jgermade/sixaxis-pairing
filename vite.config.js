@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
     publicDir: resolve(__dirname, 'static'),
     build: {
       outDir: resolve(__dirname, OUT_DIR),
+      cssMinify: false,
     },
     plugins: [
       vue(),
