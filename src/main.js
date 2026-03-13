@@ -17,9 +17,7 @@ blueretroDBService.connect()
 
 const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID
 
-if (import.meta.env.DEV) {
-  console.log('Google Client ID:', GOOGLE_CLIENT_ID)
-}
+console.log('Google Client ID:', GOOGLE_CLIENT_ID)
 
 // globalThis.onload = function () {
 //   google.accounts.id.initialize({
