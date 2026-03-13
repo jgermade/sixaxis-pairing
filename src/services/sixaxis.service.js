@@ -6,7 +6,17 @@ const CONTROLLER_MAC_REPORT_ID = 0xf2
 const PAIRED_MAC_REPORT_ID = 0xf5
 
 
-export class SixaxisController {
+export class SixaxisService {
+  #connectListeners = []
+
+  onConnect (callback) {
+    this.#connectListeners.push(callback)
+  }
+
+  offConnect (callback) {
+    this.#connectListeners = this.#connectListeners.filter(cb => cb !== callback)
+  }
+
   async connect () {
     if (this.device?.opened) return
 
@@ -26,16 +36,42 @@ export class SixaxisController {
     if (this.device?.opened) return
     
     await this.device.open()
+
+    const macAddress = await this.getSelfMacAddress()
+    const pairedMacAddress = await this.getPairedMacAddress()
+
+    this.deviceData = {
+      name: this.device.productName,
+      macAddress,
+      pairedMacAddress,
+    }
+
+    this.#connectListeners.forEach(cb => cb(this.deviceData))
+  }
+
+  async refresh () {
+    if (!this.device?.opened) return
+
+    const macAddress = await this.getSelfMacAddress()
+    const pairedMacAddress = await this.getPairedMacAddress()
+
+    this.deviceData = {
+      name: this.device.productName,
+      macAddress,
+      pairedMacAddress,
+    }
+
+    this.#connectListeners.forEach(cb => cb(this.deviceData))
   }
 
   async #getMacAddress (reportId, sliceFrom, sliceTo) {
     const report = await this.device.receiveFeatureReport(reportId)
 
-    console.log('full report', {
-      buffer: report.buffer,
-      array: new Uint8Array(report.buffer),
-      str: [...new Uint8Array(report.buffer)].map(b => b.toString(16).padStart(2, '0'))
-    })
+    // console.log('full report', {
+    //   buffer: report.buffer,
+    //   array: new Uint8Array(report.buffer),
+    //   str: [...new Uint8Array(report.buffer)].map(b => b.toString(16).padStart(2, '0'))
+    // })
 
     const mac = [...new Uint8Array(report.buffer.slice(sliceFrom, sliceTo))]
       .map(b => b.toString(16).padStart(2, '0'))
@@ -51,7 +87,11 @@ export class SixaxisController {
     return await this.#getMacAddress(PAIRED_MAC_REPORT_ID, 2, 8)
   }
 
-  async setPairedMac(macAddress) {
+  async setPairedMac(macAddress = null) {
+    if (!macAddress) {
+      throw new Error("No MAC address provided to setPairedMac.")
+    }
+
     const macBytes = macAddress.split(':').map(b => parseInt(b, 16))
     if (macBytes.length !== 6) {
       throw new Error("Invalid MAC address format.")
@@ -65,5 +105,10 @@ export class SixaxisController {
   close () {
     this.device?.forget()
     this.device = null
+    this.deviceData = null
+
+    this.#connectListeners.forEach(cb => cb(null))
   }
 }
+
+export const sixaxisService = new SixaxisService()

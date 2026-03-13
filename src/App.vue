@@ -1,46 +1,203 @@
 <script setup>
-import SixaxisPairingWidget from './components/SixaxisPairingWidget.vue'
+import { computed, reactive, ref, watch } from 'vue'
+
+import SixaxisConnect from './components/SixaxisConnect.vue'
+import RegisterInsixaxis from './components/RegisterInsixaxis.vue'
+import BluetoothDeviceSelector from './components/BluetoothDeviceSelector.vue'
+
+import { sixaxisService } from './services/sixaxis.service'
+import { googleLoginService } from './services/googleLogin.service'
+
+const colorScheme = ref(sessionStorage.getItem('colorScheme') || 'auto')
+
+watch(colorScheme, (newScheme) => {
+  sessionStorage.setItem('colorScheme', newScheme)
+})
+
+const effectiveColorScheme = computed(() => {
+  return colorScheme.value === 'auto'
+    ? 'light dark'
+    : colorScheme.value
+})
+
+// ----
+
+const scope = reactive({
+  isConnecting: false,
+  currentDS3Device: null,
+  currentTargetDevice: null,
+  pairedMacUpdatedInfo: false,
+})
+
+sixaxisService.onConnect((device) => {
+  scope.currentDS3Device = device
+})
+
+const connectSixaxis = async () => {
+  scope.isConnecting = true
+
+  try {
+    await sixaxisService.connect()
+  } catch (error) {
+    console.error('Failed to connect to Sixaxis controller:', error)
+  } finally {
+    scope.isConnecting = false
+  }
+}
+
+const refreshSixaxis = async () => {
+  scope.isConnecting = true
+
+  try {
+    await sixaxisService.refresh()
+  } catch (error) {
+    console.error('Failed to refresh Sixaxis connection:', error)
+  } finally {
+    scope.isConnecting = false
+  }
+}
+
+const registerInsixaxis = async () => {
+  try {
+    await sixaxisService.setPairedMac(scope.currentTargetDevice.mac)
+
+    scope.currentDS3Device.pairedMacAddress = scope.currentTargetDevice.mac
+
+    scope.pairedMacUpdatedInfo = true
+    setTimeout(() => {
+      scope.pairedMacUpdatedInfo = false
+    }, 2000)
+  } catch (error) {
+    console.error('Failed to register in Sixaxis:', error)
+  }
+}
+
+const loginGoogle = () => {
+  try {
+    // Initiate the Google login flow; this does not wait for completion.
+    googleLoginService.login()
+  } catch (error) {
+    console.error('Google login failed to start:', error)
+  }
+}
+
+
+
 </script>
 
 <template>
   <main>
-    <div container>
-      <div logo></div>
-      <SixaxisPairingWidget />
-    </div>
+    <section connection>
+      <div container connection>
+        <button
+          type="button" color-scheme-selector
+          @click="
+            colorScheme = colorScheme === 'auto'
+              ? 'light'
+              : colorScheme === 'light' ? 'dark' : 'auto'
+          "
+        >
+          {{ colorScheme }}
+        </button>
+
+        <!-- <button type="button" btn-login-google @click="loginGoogle()">
+          Login Google
+        </button> -->
+        <!-- <div logo></div> -->
+        <SixaxisConnect
+          :isConnecting="scope.isConnecting"
+          :currentDevice="scope.currentDS3Device"
+          @connect="connectSixaxis()"
+          @refresh="refreshSixaxis()"
+          @disconnect="sixaxisService.close()"
+        />
+        <div v-if="scope.pairedMacUpdatedInfo" paired-notification>
+          Paired MAC updated!
+        </div>
+        <RegisterInsixaxis
+          v-if="scope.currentDS3Device && !scope.pairedMacUpdatedInfo"
+          :disabled="!scope.currentTargetDevice"
+          @register="registerInsixaxis()"
+        />
+        <div v-if="!scope.pairedMacUpdatedInfo && !scope.currentDS3Device" padding-bottom />
+      </div>
+    </section>
+    <!-- <hr v-if="!scope.currentDevice" style="margin: 1rem 2rem 2rem" /> -->
+    <section bluetooth-selector>
+      <div container>
+        <BluetoothDeviceSelector
+          v-model="scope.currentTargetDevice"
+        />
+      </div>
+    </section>
   </main>
 </template>
 
 <style lang="sass" scoped>
+:root
+  color-scheme: v-bind(effectiveColorScheme)
+
+button[color-scheme-selector]
+  position: fixed
+  top: 1rem
+  left: 1rem
+  z-index: 1000
+  padding: 8px 12px
+  border: none
+  border-radius: 4px
+  cursor: pointer
+  font-size: 14px
+
+  color: light-dark(#333, #c2c1c1)
+  background-color: light-dark(#eee, #444)
+
+button[btn-login-google]
+  position: fixed
+  top: 2rem
+  right: 2rem
+  z-index: 1000
+  padding: 8px 12px
+  border: none
+  border-radius: 4px
+  cursor: pointer
+  font-size: 14px
+
 main
+  // padding: 6vw 0
+
+  section[connection]
+    padding: 6vw 0 0
+    background-color: light-dark(#fff, #333)
+    color: light-dark(#333a3e, white)
+
+    [padding-bottom]
+      padding-bottom: 2rem
+
+  section[bluetooth-selector]
+    padding: 2rem 0
 
   [container]
-    max-width: 540px
+    max-width: 460px
     margin: 0 auto
-    padding: 4vw 20px
-  // display: flex
-  // justify-content: center
-  // align-items: flex-start
-  // padding-top: 30vh
-  // min-height: 100vh
-  // min-height: 100dvh
 
-  // background-repeat: no-repeat
-  // background-position: center 5vh
-  // background-size: 240px, 10%
+  [paired-notification]
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 5rem
 
-  [logo]
-    // width: 240px
-    // height: 120px
-    aspect-ratio: 2 / 1
-    margin: 0 auto 40px auto
-    background-repeat: no-repeat
-    background-position: center
-    background-size: contain
+  // [logo]
+  //   // width: 240px
+  //   // height: 120px
+  //   aspect-ratio: 2 / 1
+  //   margin: 0 auto 40px auto
+  //   background-repeat: no-repeat
+  //   background-position: center
+  //   background-size: contain
 
-    background-image: url('/images/ps-controller-dark.svg')
-    @media (prefers-color-scheme: dark)
-      background-image: url('/images/ps-controller-light.svg')
+  //   background-image: url('/images/ps-controller-dark.svg')
+  //   @media (prefers-color-scheme: dark)
+  //     background-image: url('/images/ps-controller-light.svg')
 
   // background-image: url('/images/ps-controller-dark.svg')
   // @media (prefers-color-scheme: dark)

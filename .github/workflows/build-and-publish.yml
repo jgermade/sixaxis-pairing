@@ -17,7 +17,7 @@ jobs:
       - name: build
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
       - run: npm i
       - run: npm run build.githubPages
