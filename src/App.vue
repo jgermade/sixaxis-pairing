@@ -189,6 +189,7 @@ main
   [container]
     max-width: 460px
     margin: 0 auto
+    width: 100%
 
   [paired-notification]
     display: flex
