@@ -15,7 +15,7 @@ blueretroDBService.connect()
     alert('Failed to connect to database. Please check the console for more details.')
   })
 
-const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID
+// const GOOGLE_CLIENT_ID = import.meta.env.GOOGLE_CLIENT_ID
 
 console.log('Google Client ID:', GOOGLE_CLIENT_ID)
 

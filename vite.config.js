@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       global: 'globalThis',
-      'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify(env.VITE_GOOGLE_CLIENT_ID),
+      GOOGLE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID),
     },
     envPrefix: 'VITE_',
   }
