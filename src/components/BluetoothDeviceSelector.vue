@@ -34,7 +34,7 @@ watch(newDeviceMac, (newMac) => {
 })
 
 blueretroDBService.onUpdateList((updatedDevices) => {
-  devices.value = updatedDevices.reverse()
+  devices.value = updatedDevices.slice().reverse()
 })
 
 const readBlueretroDevice = async () => {
