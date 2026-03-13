@@ -46,4 +46,9 @@ defineProps({
 
   button:hover svg
     color: royalblue
+
+  button[disabled]
+    cursor: not-allowed
+    svg
+      color: light-dark(#aaa, #555)
 </style>

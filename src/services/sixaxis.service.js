@@ -41,7 +41,7 @@ export class SixaxisService {
     const pairedMacAddress = await this.getPairedMacAddress()
 
     this.deviceData = {
-      productName: this.device.productName,
+      name: this.device.productName,
       macAddress,
       pairedMacAddress,
     }
@@ -56,7 +56,7 @@ export class SixaxisService {
     const pairedMacAddress = await this.getPairedMacAddress()
 
     this.deviceData = {
-      productName: this.device.productName,
+      name: this.device.productName,
       macAddress,
       pairedMacAddress,
     }

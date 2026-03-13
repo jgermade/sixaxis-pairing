@@ -16,13 +16,13 @@ defineProps({
 
 <template>
   <div sixaxis-connect>
-    <DS3 />
+    <DS3 :is-connected="Boolean(currentDevice)" />
     <div actions>
       <div v-if="isConnecting" connecting-state>
         Connecting...
       </div>
       <div v-else-if="currentDevice" current-device>
-        <div product-name>{{ currentDevice.productName }}</div>
+        <div product-name>{{ currentDevice.name }}</div>
         <div self-mac-address><code>{{ currentDevice.macAddress }}</code></div>
         <div connected-data>
           <button type="button" refresh-button @click="$emit('refresh')">
@@ -53,7 +53,7 @@ defineProps({
 [connecting-state], [default-state]
   text-align: center
   padding: 1rem
-  color: var(--text-bold-color)
+  color: light-dark(#c2c1c1, #333)
 
 [current-device]
   display: flex
@@ -143,7 +143,7 @@ defineProps({
 
     [paired-mac-address]
       text-align: center
-      color: #777
+      color: light-dark(black, white)
 
     [btn]
       width: 100%

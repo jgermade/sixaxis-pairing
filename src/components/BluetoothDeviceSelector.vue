@@ -116,7 +116,9 @@ const onSubmit = async (event) => {
     </form>
     <ul devices-list>
       <li v-for="device in devices" :key="device.id" device-item>
-        {{ device.name }} <code>{{ device.mac }}</code>
+        <div device-info @click="$emit('selected', device)">
+          <code>{{ device.mac }}</code> {{ device.name }}
+        </div>
       </li>
     </ul>
   </div>

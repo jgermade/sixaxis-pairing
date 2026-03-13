@@ -18,6 +18,7 @@ watch(colorScheme, (newScheme) => {
 const scope = reactive({
   isConnecting: false,
   currentDevice: null,
+  selectedDevice: null,
 })
 
 sixasisService.onConnect((device) => {
@@ -62,34 +63,42 @@ const registerInSixasis = async () => {
 
 <template>
   <main>
-    <div container>
-      <button
-        type="button" color-scheme-selector
-        @click="
-          colorScheme = colorScheme === 'auto'
-            ? 'light'
-            : colorScheme === 'light' ? 'dark' : 'auto'
-        "
-      >
-        {{ colorScheme }}
-      </button>
-      <!-- <div logo></div> -->
-      <SixaxisConnect
-        :isConnecting="scope.isConnecting"
-        :currentDevice="scope.currentDevice"
-        @connect="connectSixaxis()"
-        @refresh="refreshSixaxis()"
-        @disconnect="sixasisService.close()"
-      />
-      <RegisterInSixasis
-        v-if="scope.currentDevice"
-        @register="sixasisService.registerInSixasis()"
-      />
-    </div>
-    <hr v-if="!scope.currentDevice" style="margin: 1rem 2rem 2rem" />
-    <div container>
-      <BluetoothDeviceSelector />
-    </div>
+    <section connection>
+      <div container connection>
+        <button
+          type="button" color-scheme-selector
+          @click="
+            colorScheme = colorScheme === 'auto'
+              ? 'light'
+              : colorScheme === 'light' ? 'dark' : 'auto'
+          "
+        >
+          {{ colorScheme }}
+        </button>
+        <!-- <div logo></div> -->
+        <SixaxisConnect
+          :isConnecting="scope.isConnecting"
+          :currentDevice="scope.currentDevice"
+          @connect="connectSixaxis()"
+          @refresh="refreshSixaxis()"
+          @disconnect="sixasisService.close()"
+        />
+        <RegisterInSixasis
+          v-if="scope.currentDevice"
+          :disabled="!scope.selectedDevice"
+          @register="sixasisService.registerInSixasis()"
+        />
+        <div v-else padding-bottom />
+      </div>
+    </section>
+    <!-- <hr v-if="!scope.currentDevice" style="margin: 1rem 2rem 2rem" /> -->
+    <section bluetooth-selector>
+      <div container>
+        <BluetoothDeviceSelector
+          @selected="device => scope.selectedDevice = device"
+        />
+      </div>
+    </section>
   </main>
 
   <div color-scheme
@@ -123,10 +132,21 @@ button[color-scheme-selector]
   background-color: light-dark(#eee, #444)
 
 main
-  padding: 4vw 0
+  // padding: 6vw 0
+
+  section[connection]
+    padding: 6vw 0 0
+    background-color: light-dark(#fff, #333)
+    color: light-dark(#333a3e, white)
+
+    [padding-bottom]
+      padding-bottom: 2rem
+
+  section[bluetooth-selector]
+    padding: 2rem 0
 
   [container]
-    max-width: 540px
+    max-width: 460px
     margin: 0 auto
 
   // [logo]

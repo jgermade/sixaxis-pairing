@@ -141,7 +141,10 @@ gamepadDS3Service
             <rect x="395.431" y="119.751" transform="matrix(0.7071 0.7071 -0.7071 0.7071 210.9001 -241.3773)" width="2.775" height="28.278"/>
           </g>
         </g>
-        <g class="logo">
+
+        <rect class="connection-status" x="170" y="48" width="170" height="2"></rect>
+
+        <!-- <g class="logo">
           <path d="M234.099,77.984c-0.268-0.602-0.67-1.138-1.272-1.539c-0.469-0.402-1.004-0.67-1.606-0.87
             c-0.603-0.201-1.406-0.402-2.343-0.469l-2.544-0.335c-0.402-0.067-0.803-0.134-1.071-0.268c-0.335-0.134-0.603-0.268-0.803-0.402
             c-0.201-0.201-0.335-0.402-0.469-0.602c-0.067-0.201-0.134-0.402-0.134-0.67c0-0.602,0.268-1.071,0.803-1.539
@@ -174,7 +177,7 @@ gamepadDS3Service
             />
           <path d="M287.784,67.876l-3.816,6.962l-3.882-6.962h-4.418l6.226,10.242v7.096h4.083v-7.096l6.225-10.242
             H287.784z"/>
-        </g>
+        </g> -->
       </g>
     </svg>
   </div>
@@ -195,7 +198,13 @@ gamepadDS3Service
   --backface-bg: #b0afaf
   --gamepad-front-bg: #e5e5e4
   --stick-ring: #cbc9c9
-  --logo-color: #949394
+  // --logo-color: #949394
+
+  // --btn-color: light-dark(#4a4a4a, #777778)
+  // --gamepad-bg: light-dark(#7b7b7b, #c2c1c1)
+  // --backface-bg: light-dark(#7b7b7b, #b0afaf)
+  // --gamepad-front-bg: light-dark(#9e9e9e, #e5e5e4)
+  // --stick-ring: light-dark(#8c8c8c, #cbc9c9)
 
   // &.light
   //   // --btn-color: #9e9e9e
@@ -214,8 +223,8 @@ gamepadDS3Service
 
   width: 100%
 
-  &.connected
-    --logo-color: royalblue
+  &.connected .connection-status
+    fill: royalblue
     // filter: drop-shadow( 0 0 2px #57c0eb)
   
 .parts
@@ -256,7 +265,7 @@ gamepadDS3Service
     .symbol.square
       fill: #CE7FB2
 
-  .logo
-    fill: var(--logo-color)
+  .connection-status
+    fill: var(--gamepad-bg)
 
 </style>
