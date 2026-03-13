@@ -47,6 +47,16 @@ export class SixaxisService {
     }
 
     this.#connectListeners.forEach(cb => cb(this.deviceData))
+
+    // Listen for disconnection
+    const onDisconnect = (event) => {
+      if (event.device === this.device) {
+        this.close()
+        navigator.hid.removeEventListener('disconnect', onDisconnect)
+      }
+    }
+
+    navigator.hid.addEventListener('disconnect', onDisconnect)
   }
 
   async refresh () {

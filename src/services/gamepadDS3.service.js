@@ -69,7 +69,7 @@ export class GamepadDS3Service {
 
   pollGamepad () {
     const currentGamepad = navigator.getGamepads()
-      .find(gp => gp?.id.includes('PLAYSTATION(R)3 Controller'))
+      .find(gp => gp?.id.toLowerCase().startsWith('playstation'))
 
     if (currentGamepad) {
       const newButtons = currentGamepad.buttons.map(btn => btn.pressed)
