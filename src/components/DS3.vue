@@ -1,106 +1,40 @@
 
 <script setup>
-import { reactive } from 'vue'
+import { ref } from 'vue'
+
+import {
+  DS3_BUTTONS as BTN,
+  DS3_AXES as AXES,
+  gamepadDS3Service,
+} from '../services/gamepadDS3.service'
 
 defineProps({
-  theme: {
-    type: String,
-    default: 'light',
-  },
-  connected: {
+  isConnected: {
     type: Boolean,
     default: false,
   },
 })
 
-const BTN_UP = 12
-const BTN_DOWN = 13
-const BTN_LEFT = 14
-const BTN_RIGHT = 15
-const BTN_SELECT = 8
-const BTN_START = 9
-const BTN_HOME = 16
-const BTN_TRIANGLE = 3
-const BTN_CIRCLE = 1
-const BTN_SQUARE = 2
-const BTN_EQUIS = 0
-const BTN_L1 = 4
-const BTN_R1 = 5
+const btns = ref(gamepadDS3Service.buttons || [])
+const axes = ref(gamepadDS3Service.axes || [])
 
-const TRIGGER_L2 = 6
-const TRIGGER_R2 = 7
-
-const LSTICK_X = 0
-const LSTICK_Y = 1
-const RSTICK_X = 2
-const RSTICK_Y = 3
-
-const detected = reactive({
-  gamepad: null,
-  buttons: [],
-  triggers: [],
-  axes: [],
-})
-
-window.addEventListener('gamepadconnected', (event) => {
-  console.log('Gamepad connected:', event.gamepad)
-  
-  if (event.gamepad.id.toLowerCase().includes("playstation")) {
-    detected.gamepad = event.gamepad
-  }
-})
-
-console.log('Starting gamepad detection...', navigator.getGamepads())
-
-const updateGamepadStatus = () => {
-  const currentGamepad = navigator.getGamepads()
-    .find(gp => gp && gp.connected && gp.id.toLowerCase().includes("playstation"))
-
-  if (currentGamepad) console.log('Current gamepad state:', currentGamepad)
-
-  const buttonsValues = currentGamepad
-    ? currentGamepad.buttons.map(button => button.pressed)
-    : Array(17).fill(false)
-
-  if (JSON.stringify(buttonsValues) !== JSON.stringify(detected.buttons)) {
-    detected.buttons = buttonsValues
-  }
-
-  const triggersValues = currentGamepad
-    ? [currentGamepad.buttons[TRIGGER_L2]?.value || 0, currentGamepad.buttons[TRIGGER_R2]?.value || 0]
-    : Array(2).fill(0)
-
-  if (JSON.stringify(triggersValues) !== JSON.stringify(detected.triggers)) {
-    console.log('Triggers values changed:', triggersValues)
-    detected.triggers = triggersValues
-  }
-
-  const axesValues = currentGamepad
-    ? currentGamepad.axes.slice().map(value => Math.abs(value) < 0.1 ? 0 : value) // Deadzone
-    : Array(4).fill(0)
-
-  if (JSON.stringify(axesValues) !== JSON.stringify(detected.axes)) {
-    detected.axes = axesValues
-  }
-
-  const btnsPressed = currentGamepad?.buttons.reduce((acc, btn, index) => {
-    if (btn.pressed) acc.push(btn)
-    return acc
-  }, [])
-
-  if (btnsPressed?.length > 0) {
-    console.log('Buttons currently pressed:', btnsPressed)
-  }
-
-  requestAnimationFrame(updateGamepadStatus)
-}
-
-updateGamepadStatus()
+gamepadDS3Service
+  .onChange((newBtns, newAxes) => {
+    // console.log(
+    //   'pressed:',
+    //   newBtns
+    //     .map((_, index) => Object.keys(BTN).find(key => BTN[key] === index))
+    //     .filter(key => newBtns[BTN[key]])
+    //     .join(', '),
+    // )
+    btns.value = newBtns
+    axes.value = newAxes
+  })
 </script>
 
 <template>
   <div class="ds3-widget" :class="[theme, {
-    'connected': connected,
+    'connected': isConnected,
   }]">
     <svg version="1.1" id="_x34_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 viewBox="0 0 512 340"  xml:space="preserve">
@@ -108,9 +42,7 @@ updateGamepadStatus()
         <path class="backface" d="M483.073,329.244c-13.43,4.556-27.783,1.961-38.608-5.978l-18.691-24.939l-63.588-84.906H148.796
           l-58.264,77.786l-24.742,33.024v0.01c-10.741,7.223-24.576,9.403-37.538,4.888c12.351-3.892,22.843-12.174,28.271-23.652
           l92.274-123.191h213.389l92.274,123.191C459.929,317.06,470.577,325.384,483.073,329.244z"/>
-        <path class="holder left" :class="{
-          pressed: detected.buttons[BTN_L1]
-        }" d="M191.124,137.426c-0.268,0.736-0.536,1.539-0.87,2.276l-4.15,6.292l-6.962,10.576l-2.142,3.213
+        <path class="holder left" d="M191.124,137.426c-0.268,0.736-0.536,1.539-0.87,2.276l-4.15,6.292l-6.962,10.576l-2.142,3.213
           l-14.66,22.357l-0.067,0.134l-6.962,10.576l-14.593,22.29l-48.598,73.901l-1.406,2.142c0,0-18.074,28.583-24.767,33.068
           c-4.418,2.945-9.305,5.087-14.459,6.159l-9.171,1.071c-4.351,0-8.702-0.669-12.986-2.008c0,0-0.067,0-0.067-0.067
           c-0.268-0.067-0.602-0.134-0.87-0.268h-0.067c-0.737-0.268-1.473-0.603-2.209-0.87c-11.915-4.953-20.416-14.66-24.031-26.039
@@ -123,15 +55,16 @@ updateGamepadStatus()
           c-8.386-20.217-8.199-41.835-1.121-60.838c0.062-0.187,0.135-0.374,0.208-0.561c7.836-20.601,23.808-38.058,45.758-47.159
           c7.058-2.916,14.281-4.805,21.514-5.708c0.343-0.042,0.695-0.083,1.048-0.114c2.74-0.28,5.532-0.425,8.354-0.425
           c38.991,0,71.59,27.306,79.748,63.837l1.391,8.126l30.139,176.038C517.72,294.508,507.477,319.302,485.879,328.248z"/>
-        <path class="shoulder left" :style="{
-          pressed: detected.buttons[TRIGGER_L2] > 0,
-          transform: detected.buttons[TRIGGER_L2] ? `translateY(${detected.buttons[TRIGGER_L2]}px)` : 'translateY(0)'
-        }" d="M149.287,32.666v0.201c0.067,6.761-4.418,12.25-10.643,12.25H90.381
+        <path class="shoulder left" :class="{
+          pressed: btns[BTN.L1],
+          triggered: btns[BTN.L2],
+        }"
+        d="M149.287,32.666v0.201c0.067,6.761-4.418,12.25-10.643,12.25H90.381
           c-6.292,0-10.844-5.556-10.643-12.451c0-0.602,0-1.138,0.134-1.74l2.812-20.082C83.486,4.753,88.774,0,94.464,0h40.029
           c5.69,0,11.045,4.753,11.848,10.844l2.811,20.082C149.22,31.461,149.287,32.064,149.287,32.666z"/>
-        <path class="shoulder right" :style="{
-          pressed: detected.buttons[TRIGGER_R2] > 0,
-          transform: detected.buttons[TRIGGER_R2] ? 'translateY(2px)' : 'translateY(0)'
+        <path class="shoulder right" :class="{
+          pressed: btns[BTN.R1],
+          triggered: btns[BTN.R2],
         }" d="M431.568,32.6c0.201,6.894-4.284,12.517-10.644,12.517h-48.263
           c-6.159,0-10.577-5.288-10.577-11.982V32.6c0-0.536,0-1.071,0.134-1.674l2.744-20.082C365.834,4.753,371.122,0,376.812,0h40.029
           c0.803,0,1.607,0.067,2.343,0.268c4.284,1.004,8.033,4.619,9.171,9.171c0.201,0.469,0.268,0.937,0.335,1.406l2.744,20.082
@@ -146,17 +79,19 @@ updateGamepadStatus()
           c9.371,1.004,18.207,3.481,26.374,7.297C459.348,45.719,478.559,73.901,478.559,106.634z"/>
         
         <g class="dpad">
-          <polygon class="btn up" :class="{ pressed: detected.buttons[BTN_UP] }" points="102.793,89.222 116.06,96.298 129.327,89.222 129.327,67.7 102.793,67.7 		"/>
-          <polygon class="btn down" :class="{ pressed: detected.buttons[BTN_DOWN] }" points="102.793,124.013 116.06,116.936 129.327,124.013 129.327,145.535 102.793,145.535 		"/>
-          <polygon class="btn right" :class="{ pressed: detected.buttons[BTN_RIGHT] }" points="133.455,92.466 126.379,105.733 133.455,119 154.978,119 154.978,92.466 		"/>
-          <polygon class="btn left" :class="{ pressed: detected.buttons[BTN_LEFT] }" points="98.665,92.466 105.741,105.733 98.665,119 77.143,119 77.143,92.466 		"/>
+          <polygon class="btn up" :class="{ pressed: btns[BTN.UP] }" points="102.793,89.222 116.06,96.298 129.327,89.222 129.327,67.7 102.793,67.7 		"/>
+          <polygon class="btn down" :class="{ pressed: btns[BTN.DOWN] }" points="102.793,124.013 116.06,116.936 129.327,124.013 129.327,145.535 102.793,145.535 		"/>
+          <polygon class="btn right" :class="{ pressed: btns[BTN.RIGHT] }" points="133.455,92.466 126.379,105.733 133.455,119 154.978,119 154.978,92.466 		"/>
+          <polygon class="btn left" :class="{ pressed: btns[BTN.LEFT] }" points="98.665,92.466 105.741,105.733 98.665,119 77.143,119 77.143,92.466 		"/>
         </g>
         
         <g class="stick left">
           <circle class="ring" cx="184.555" cy="188.343" r="51.37"/>
           <path
-            class="btn" :style="{
-              transform: `translate(${detected.axes[LSTICK_X] * 10}px, ${detected.axes[LSTICK_Y] * 10}px)`
+            class="btn" :class="{
+              pressed: btns[BTN.L3]
+            }" :style="{
+              transform: `translate(${axes[AXES.LEFT_X] * 10}px, ${axes[AXES.LEFT_Y] * 10}px)`
             }"
             d="M184.555,217.899c-16.297,0-29.557-13.258-29.557-29.556c0-16.297,13.259-29.556,29.557-29.556
             s29.556,13.259,29.556,29.556C214.11,204.641,200.852,217.899,184.555,217.899z"
@@ -164,8 +99,10 @@ updateGamepadStatus()
         </g>
         <g class="stick right">
           <circle class="ring" cx="329.326" cy="188.343" r="51.37"/>
-          <path class="btn" :style="{
-              transform: `translate(${detected.axes[RSTICK_X] * 10}px, ${detected.axes[RSTICK_Y] * 10}px)`
+          <path class="btn" :class="{
+              pressed: btns[BTN.R3]
+            }" :style="{
+              transform: `translate(${axes[AXES.RIGHT_X] * 10}px, ${axes[AXES.RIGHT_Y] * 10}px)`
             }"
             d="M329.326,217.899c-16.297,0-29.556-13.258-29.556-29.556s13.259-29.557,29.556-29.557
             s29.556,13.259,29.556,29.557S345.623,217.899,329.326,217.899z"
@@ -173,31 +110,31 @@ updateGamepadStatus()
         </g>g>
         
         <g>
-          <rect x="209.189" y="104.182" class="btn select" :class="{ pressed: detected.buttons[BTN_SELECT] }" width="26.463" height="15.767"/>
-          <rect x="245.34" y="145.868" class="btn ps" :class="{ pressed: detected.buttons[BTN_HOME] }" width="26.464" height="15.767"/>
-          <polygon class="btn start" :class="{ pressed: detected.buttons[BTN_START] }" points="291.074,104.182 272.249,104.182 272.249,119.949 291.074,119.949 302.135,112.533 			"/>
+          <rect x="209.189" y="104.182" class="btn select" :class="{ pressed: btns[BTN.SELECT] }" width="26.463" height="15.767"/>
+          <rect x="243" y="145.868" class="btn ps" :class="{ pressed: btns[BTN.HOME] }" width="26.464" height="15.767"/>
+          <polygon class="btn start" :class="{ pressed: btns[BTN.START] }" points="291.074,104.182 272.249,104.182 272.249,119.949 291.074,119.949 302.135,112.533 			"/>
         </g>
         <g class="abxy">
-          <path class="btn triangle" :class="{ pressed: detected.buttons[BTN_TRIANGLE] }" d="M396.818,88.862c-10.223,0-18.54-8.316-18.54-18.539c0-10.223,8.317-18.54,18.54-18.54
+          <path class="btn triangle" :class="{ pressed: btns[BTN.TRIANGLE] }" d="M396.818,88.862c-10.223,0-18.54-8.316-18.54-18.539c0-10.223,8.317-18.54,18.54-18.54
             c10.223,0,18.539,8.317,18.539,18.54C415.358,80.545,407.041,88.862,396.818,88.862z"/>
           <path class="symbol triangle" d="M396.827,55.225l-14.459,24.968h28.851L396.827,55.225z M396.827,60.781l9.572,16.601h-19.211
             L396.827,60.781z"/>
 
-          <path class="btn square" :class="{ pressed: detected.buttons[BTN_SQUARE] }" d="M346.495,102.106c0-10.223,8.317-18.54,18.539-18.54c10.223,0,18.54,8.317,18.54,18.54
+          <path class="btn square" :class="{ pressed: btns[BTN.SQUARE] }" d="M346.495,102.106c0-10.223,8.317-18.54,18.539-18.54c10.223,0,18.54,8.317,18.54,18.54
             c0,10.223-8.317,18.539-18.54,18.539C354.811,120.646,346.495,112.329,346.495,102.106z"/>
           <path class="symbol square" d="M373.131,89.297h-16.199c-2.611,0-4.752,2.075-4.752,4.686v16.266
             c0,2.544,2.142,4.686,4.752,4.686h16.199c2.61,0,4.752-2.142,4.752-4.686V93.982C377.883,91.372,375.741,89.297,373.131,89.297z
             M375.072,110.249c0,1.071-0.87,1.941-1.941,1.941h-16.199c-1.071,0-1.941-0.87-1.941-1.941V93.982
             c0-1.071,0.87-1.941,1.941-1.941h16.199c1.071,0,1.941,0.87,1.941,1.941V110.249z"/>
           
-          <path class="btn circle" :class="{ pressed: detected.buttons[BTN_CIRCLE] }" d="M410.063,102.106c0-10.223,8.316-18.54,18.539-18.54c10.223,0,18.54,8.317,18.54,18.54
+          <path class="btn circle" :class="{ pressed: btns[BTN.CIRCLE] }" d="M410.063,102.106c0-10.223,8.316-18.54,18.539-18.54c10.223,0,18.54,8.317,18.54,18.54
             c0,10.223-8.317,18.539-18.54,18.539C418.379,120.646,410.063,112.329,410.063,102.106z"/>
           <path class="symbol circle" d="M428.623,87.824c-7.899,0-14.325,6.426-14.325,14.258c0,7.899,6.426,14.325,14.325,14.325
             c7.832,0,14.258-6.426,14.258-14.325C442.881,94.25,436.455,87.824,428.623,87.824z M428.623,113.595
             c-6.359,0-11.514-5.154-11.514-11.514c0-6.359,5.154-11.513,11.514-11.513c6.359,0,11.513,5.154,11.513,11.513
             C440.136,108.441,434.982,113.595,428.623,113.595z"/>
           
-          <path class="btn equis" :class="{ pressed: detected.buttons[BTN_EQUIS] }" d="M396.818,152.43c-10.223,0-18.54-8.317-18.54-18.539c0-10.223,8.317-18.54,18.54-18.54
+          <path class="btn equis" :class="{ pressed: btns[BTN.EQUIS] }" d="M396.818,152.43c-10.223,0-18.54-8.317-18.54-18.539c0-10.223,8.317-18.54,18.54-18.54
             c10.223,0,18.539,8.317,18.539,18.54C415.358,144.113,407.041,152.43,396.818,152.43z"/>
           <g class="symbol equis">
             <rect x="382.679" y="132.503" transform="matrix(0.7071 0.7071 -0.7071 0.7071 210.9001 -241.3773)" width="28.278" height="2.775"/>
@@ -246,18 +183,36 @@ updateGamepadStatus()
 <style lang="sass" scoped>
 
 .ds3-widget
+  // --btn-color: light-dark(#4a4a4a, #777778)
+  // --gamepad-bg: light-dark(#7b7b7b, #c2c1c1)
+  // --backface-bg: light-dark(#7b7b7b, #b0afaf)
+  // --gamepad-front-bg: light-dark(#9e9e9e, #e5e5e4)
+  // --stick-ring: light-dark(#8c8c8c, #cbc9c9)
+  // --logo-color: light-dark(#6b6b6b, #949394)
+
   --btn-color: #777778
   --gamepad-bg: #c2c1c1
+  --backface-bg: #b0afaf
   --gamepad-front-bg: #e5e5e4
   --stick-ring: #cbc9c9
   --logo-color: #949394
 
-  &.dark
-    --btn-color: #4a4a4a
-    --gamepad-bg: #7b7b7b
-    --gamepad-front-bg: #9e9e9e
-    --stick-ring: #8c8c8c
-    --logo-color: #6b6b6b
+  // &.light
+  //   // --btn-color: #9e9e9e
+  //   // --gamepad-bg: #dcdcdc
+  //   --backface-bg: #b0afaf
+  //   --gamepad-front-bg: #f5f5f5
+  //   --stick-ring: #d8d8d8
+  //   --logo-color: #a9a9a9
+
+  // &.dark
+  //   --btn-color: #4a4a4a
+  //   --gamepad-bg: #7b7b7b
+  //   --gamepad-front-bg: #9e9e9e
+  //   --stick-ring: #8c8c8c
+  //   --logo-color: #6b6b6b
+
+  width: 100%
 
   &.connected
     --logo-color: royalblue
@@ -265,13 +220,17 @@ updateGamepadStatus()
   
 .parts
   .backface
-    fill: color-mix(in srgb, var(--gamepad-bg), black 5%)
+    // fill: color-mix(in srgb, var(--gamepad-bg), black 5%)
+    fill: var(--backface-bg)
 
   .holder, .shoulder
     fill: var(--gamepad-bg)
   
   .shoulder.pressed
     fill: var(--btn-color)
+
+  .shoulder.triggered
+    transform: translateY(8px)
 
   .front
     fill: var(--gamepad-front-bg)

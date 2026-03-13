@@ -84,9 +84,9 @@ const macMask = ({ target: { value } }) => {
 </script>
 
 <template>
-  <div sixaxis-widget>
+  <div sixaxis-widget class="dark">
     <div gamepad-preview>
-      <DS3 theme="dark" :connected="sixaxis.isConnected" />
+      <DS3 theme="light" :connected="sixaxis.isConnected" />
       <div v-if="sixaxis.isConnected" device-info>
         <div device-name>{{ sixaxis.productName }}</div>
         <div v-if="!sixaxis.isLoading" device-mac>MAC: {{ sixaxis.controllerMac }}</div>
@@ -122,7 +122,7 @@ const macMask = ({ target: { value } }) => {
         </div>
       </div>
     </header>
-    <form v-if="sixaxis.isConnected && !sixaxis.isLoading" @submit.prevent="savePairingMac()">
+    <!-- <form v-if="sixaxis.isConnected && !sixaxis.isLoading" @submit.prevent="savePairingMac()">
       <input
         v-model="sixaxis.newPairingMac"
         pattern="^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$"
@@ -140,13 +140,16 @@ const macMask = ({ target: { value } }) => {
       ">
         save pairing MAC
       </button>
-    </form>
+    </form> -->
   </div>
 </template>
 
 <style lang="sass" scoped>
 [sixaxis-widget]
-  color: #333a3e
+  --text-color: light-dark(#333a3e, #c2c1c1)
+  --text-bold-color: light-dark(#11181c, #e5e5e4)
+
+  color: var(--text-color)
   // width: 400px
   padding: 2rem
 
@@ -154,6 +157,25 @@ const macMask = ({ target: { value } }) => {
   display: flex
   flex-direction: column
   gap: .75rem
+
+[gamepad-preview]
+  position: relative
+
+  [device-info]
+    position: absolute
+    left: 0
+    right: 0
+    bottom: 0
+    text-align: center
+    padding: 1rem
+
+    [device-name]
+      font-weight: bold
+      color: var(--text-bold-color)
+    // padding-left: 1.4rem
+
+    // [device-mac]
+    //   color: #777
 
 [actions]
   display: flex
@@ -208,23 +230,5 @@ input
   border-radius: .1875rem
   padding: 0 .75rem
 
-[gamepad-preview]
-  position: relative
-
-[device-info]
-  position: absolute
-  left: 0
-  right: 0
-  bottom: 0
-  text-align: center
-  padding: 1rem
-  // padding-left: 1.4rem
-
-  [device-mac]
-    // font-size: .625rem
-    color: #777
-  
-  // li + li
-  //   margin-top: .75rem
 </style>
 
