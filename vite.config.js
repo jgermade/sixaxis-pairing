@@ -12,7 +12,9 @@ const {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
 
-  console.log('Loaded environment variables:', env)
+  if (mode === 'development') {
+    console.log('Loaded environment variables:', env)
+  }
 
   return {
     root: resolve(__dirname, 'src'),
