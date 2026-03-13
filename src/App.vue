@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 
 import SixaxisConnect from './components/SixaxisConnect.vue'
-import RegisterInsixaxis from './components/RegisterInsixaxis.vue'
+import RegisterInSixaxis from './components/RegisterInSixaxis.vue'
 import BluetoothDeviceSelector from './components/BluetoothDeviceSelector.vue'
 
 import { sixaxisService } from './services/sixaxis.service'
@@ -114,7 +114,7 @@ const loginGoogle = () => {
         <div v-if="scope.pairedMacUpdatedInfo" paired-notification>
           Paired MAC updated!
         </div>
-        <RegisterInsixaxis
+        <RegisterInSixaxis
           v-if="scope.currentDS3Device && !scope.pairedMacUpdatedInfo"
           :disabled="!scope.currentTargetDevice"
           @register="registerInsixaxis()"
