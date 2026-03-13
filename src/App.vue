@@ -67,14 +67,14 @@ const registerInSixasis = async () => {
 }
 
 const loginGoogle = () => {
-  googleLoginService.login()
-    .then(() => {
-      console.log('Logged in to Google')
-    })
-    .catch((error) => {
-      console.error('Google login failed:', error)
-    })
+  try {
+    // Initiate the Google login flow; this does not wait for completion.
+    googleLoginService.login()
+  } catch (error) {
+    console.error('Google login failed to start:', error)
+  }
 }
+
 
 
 </script>
