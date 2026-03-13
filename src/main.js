@@ -20,6 +20,26 @@ if (import.meta.env.DEV) {
 }
 
 globalThis.onload = function () {
+  const tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/drive.file',
+    callback: (tokenResponse) => {
+      if (!tokenResponse?.access_token) {
+        console.error('Failed to obtain access token:', tokenResponse)
+        alert('Failed to obtain access token. Please check the console for more details.')
+        return
+      }
+
+      blueretroDBService.initReplication({
+        oauthClientId: GOOGLE_CLIENT_ID,
+        authToken: tokenResponse.access_token,
+      }).catch(err => {
+        console.error('Failed to initialize replication:', err)
+        alert('Failed to initialize replication. Please check the console for more details.')
+      })
+    },
+  })
+
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     itp_support: true,
@@ -28,35 +48,7 @@ globalThis.onload = function () {
       if (response.credential) {
         console.log('Google login successful:', response)
 
-        // google.accounts.oauth2.initCodeClient({
-        //   client_id: GOOGLE_CLIENT_ID,
-        //   scope: 'https://www.googleapis.com/auth/drive.appdata',
-        //   ux_mode: 'popup',
-        //   callback: (tokenResponse) => {
-        //     if (tokenResponse.access_token) {
-        //       console.log('Google OAuth token obtained:', tokenResponse)
-
-        //       blueretroDBService.initReplication({
-        //         oauthClientId: GOOGLE_CLIENT_ID,
-        //         authToken: tokenResponse.access_token,
-        //       }).catch(err => {
-        //         console.error('Failed to initialize replication:', err)
-        //         alert('Failed to initialize replication. Please check the console for more details.')
-        //       })
-        //     } else {
-        //       console.error('Failed to obtain access token:', tokenResponse)
-        //       alert('Failed to obtain access token. Please check the console for more details.')
-        //     }
-        //   },
-        // }).requestCode()
-
-        blueretroDBService.initReplication({
-          oauthClientId: GOOGLE_CLIENT_ID,
-          authToken: response.credential,
-        }).catch(err => {
-          console.error('Failed to initialize replication:', err)
-          alert('Failed to initialize replication. Please check the console for more details.')
-        })
+        tokenClient.requestAccessToken({ prompt: 'consent' })
 
       } else {
         console.error('Google login failed: No credential received')

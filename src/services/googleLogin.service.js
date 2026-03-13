@@ -8,9 +8,13 @@ class GoogleLoginService {
   async login() {
     console.log('Initiating Google login...')
 
-    const clientId = import.meta.env.GOOGLE_CLIENT_ID
+    const clientId =
+      (typeof GOOGLE_CLIENT_ID !== 'undefined' && GOOGLE_CLIENT_ID) ||
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      import.meta.env.GOOGLE_CLIENT_ID
+
     if (!clientId) {
-      console.error('Google client ID is not configured (import.meta.env.GOOGLE_CLIENT_ID is missing).')
+      console.error('Google client ID is not configured.')
       throw new Error('Google client ID is not configured')
     }
 
@@ -19,16 +23,20 @@ class GoogleLoginService {
       throw new Error('Google API is not loaded')
     }
 
-    window.google.accounts.oauth2.initCodeClient({
+    window.google.accounts.oauth2.initTokenClient({
       client_id: clientId,
       scope: 'https://www.googleapis.com/auth/drive.file',
-      ux_mode: 'popup',
       callback: (tokenResponse) => {
         console.log('Google OAuth token obtained:', tokenResponse)
 
+        if (!tokenResponse?.access_token) {
+          console.error('Google OAuth access token was not returned')
+          return
+        }
+
         blueretroDBService.initReplication({
           oauthClientId: clientId,
-          authToken: tokenResponse.code,
+          authToken: tokenResponse.access_token,
         })
           .then(() => {
             console.log('Replication initialized successfully')
@@ -39,7 +47,7 @@ class GoogleLoginService {
             alert('Failed to initialize replication. Please check the console for more details.')
           })
       },
-    }).requestCode()
+    }).requestAccessToken({ prompt: 'consent' })
 
     // try {
     //   const authResult = await new Promise((resolve, reject) => {
