@@ -169,12 +169,15 @@ main
   display: flex
   flex-direction: column
 
-  // padding: 6vw 0
-
   section[connection]
-    padding: 6vw 0 0
     background-color: light-dark(#fff, #333)
     color: light-dark(#333a3e, white)
+
+    padding: 6rem 1rem 0
+    @media (min-width: 840px) and (max-width: 1200px)
+      padding-top: 12vw
+    @media (min-width: 1200px)
+      padding-top: 9rem
 
     [padding-bottom]
       padding-bottom: 2rem
@@ -184,7 +187,7 @@ main
     display: flex
     flex-direction: column
     justify-content: space-between
-    padding: 2rem 0 0
+    padding: 2rem 1rem 0
 
   [container]
     max-width: 460px
