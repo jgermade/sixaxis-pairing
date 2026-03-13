@@ -148,7 +148,7 @@ const onSubmit = async (event) => {
     </form>
     <ul devices-list>
       <li
-        v-for="device in devices" :key="device.id"
+        v-for="device in devices" :key="device.mac"
         device-item :class="{ selected: model?.mac === device.mac }"
         @click="model = device"
       >
