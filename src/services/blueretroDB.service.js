@@ -11,7 +11,7 @@ import { wrappedValidateAjvStorage } from 'rxdb/plugins/validate-ajv'
 
 import { replicateGoogleDrive } from 'rxdb/plugins/replication-google-drive'
 
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
   addRxPlugin(RxDBDevModePlugin)
 }
 
