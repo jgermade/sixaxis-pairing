@@ -1,17 +1,23 @@
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import SixaxisConnect from './components/SixaxisConnect.vue'
-import RegisterInSixasis from './components/RegisterInSixasis.vue'
+import RegisterInsixaxis from './components/RegisterInsixaxis.vue'
 import BluetoothDeviceSelector from './components/BluetoothDeviceSelector.vue'
 
-import { sixasisService } from './services/sixaxis.service'
+import { sixaxisService } from './services/sixaxis.service'
 import { googleLoginService } from './services/googleLogin.service'
 
 const colorScheme = ref(sessionStorage.getItem('colorScheme') || 'auto')
 
 watch(colorScheme, (newScheme) => {
   sessionStorage.setItem('colorScheme', newScheme)
+})
+
+const effectiveColorScheme = computed(() => {
+  return colorScheme.value === 'auto'
+    ? 'light dark'
+    : colorScheme.value
 })
 
 // ----
@@ -23,7 +29,7 @@ const scope = reactive({
   pairedMacUpdatedInfo: false,
 })
 
-sixasisService.onConnect((device) => {
+sixaxisService.onConnect((device) => {
   scope.currentDS3Device = device
 })
 
@@ -31,7 +37,7 @@ const connectSixaxis = async () => {
   scope.isConnecting = true
 
   try {
-    await sixasisService.connect()
+    await sixaxisService.connect()
   } catch (error) {
     console.error('Failed to connect to Sixaxis controller:', error)
   } finally {
@@ -43,7 +49,7 @@ const refreshSixaxis = async () => {
   scope.isConnecting = true
 
   try {
-    await sixasisService.refresh()
+    await sixaxisService.refresh()
   } catch (error) {
     console.error('Failed to refresh Sixaxis connection:', error)
   } finally {
@@ -51,9 +57,9 @@ const refreshSixaxis = async () => {
   }
 }
 
-const registerInSixasis = async () => {
+const registerInsixaxis = async () => {
   try {
-    await sixasisService.setPairedMac(scope.currentTargetDevice.mac)
+    await sixaxisService.setPairedMac(scope.currentTargetDevice.mac)
 
     scope.currentDS3Device.pairedMacAddress = scope.currentTargetDevice.mac
 
@@ -103,15 +109,15 @@ const loginGoogle = () => {
           :currentDevice="scope.currentDS3Device"
           @connect="connectSixaxis()"
           @refresh="refreshSixaxis()"
-          @disconnect="sixasisService.close()"
+          @disconnect="sixaxisService.close()"
         />
         <div v-if="scope.pairedMacUpdatedInfo" paired-notification>
           Paired MAC updated!
         </div>
-        <RegisterInSixasis
+        <RegisterInsixaxis
           v-if="scope.currentDS3Device && !scope.pairedMacUpdatedInfo"
           :disabled="!scope.currentTargetDevice"
-          @register="registerInSixasis()"
+          @register="registerInsixaxis()"
         />
         <div v-if="!scope.pairedMacUpdatedInfo && !scope.currentDS3Device" padding-bottom />
       </div>
@@ -125,22 +131,11 @@ const loginGoogle = () => {
       </div>
     </section>
   </main>
-
-  <div color-scheme
-    v-html="`<style rel='stylesheet'>
-      :root {
-        color-scheme: ${
-          colorScheme === 'auto'
-            ? 'light dark'
-            : colorScheme
-        } !important;
-      }
-    </style>
-    `"
-  />
 </template>
 
 <style lang="sass" scoped>
+:root
+  color-scheme: v-bind(effectiveColorScheme)
 
 button[color-scheme-selector]
   position: fixed

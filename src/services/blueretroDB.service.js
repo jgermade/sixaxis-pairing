@@ -189,7 +189,7 @@ export class BlueRetroDBService {
     })
 
     const replicationState = await replicateGoogleDrive({
-      replicationIdentifier: 'sixasis-devices-replication',
+      replicationIdentifier: 'sixaxis-devices-replication',
       collection: this.db.devices, // RxCollection
       googleDrive: {
         oauthClientId,
@@ -224,7 +224,7 @@ export const blueretroDBService = new BlueRetroDBService()
 // DB replication
 
 // const replicationState = await replicateGoogleDrive({
-//   replicationIdentifier: 'sixasis-devices-replication',
+//   replicationIdentifier: 'sixaxis-devices-replication',
 //   collection: myRxCollection, // RxCollection
 //   googleDrive: {
 //       oauthClientId: 'YOUR_GOOGLE_CLIENT_ID',

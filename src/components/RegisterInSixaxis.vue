@@ -11,7 +11,7 @@ defineProps({
 </script>
 
 <template>
-  <div register-in-sixasis>
+  <div register-in-sixaxis>
     <button type="button" @click="$emit('register')" :disabled="disabled">
       <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" transform="rotate(-90)" viewBox="0 0 880 880">
         <defs>
@@ -28,7 +28,7 @@ defineProps({
 </template>
 
 <style lang="sass" scoped>
-[register-in-sixasis]
+[register-in-sixaxis]
   display: flex
   justify-content: center
   padding: .5rem 0
