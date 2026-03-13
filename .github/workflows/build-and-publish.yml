@@ -12,6 +12,8 @@ jobs:
   build:
     # Specify runner +  build & upload the static files as an artifact
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
     steps:
       - uses: actions/checkout@v6
       - name: build
