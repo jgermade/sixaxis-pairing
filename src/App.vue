@@ -44,9 +44,10 @@ const refreshSixaxis = async () => {
 
   try {
     await sixasisService.refresh()
-    scope.isConnecting = false
   } catch (error) {
     console.error('Failed to refresh Sixaxis connection:', error)
+  } finally {
+    scope.isConnecting = false
   }
 }
 
