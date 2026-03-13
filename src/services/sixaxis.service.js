@@ -111,4 +111,4 @@ export class SixaxisService {
   }
 }
 
-export const sixasisService = new SixaxisService()
+export const sixaxisService = new SixaxisService()
