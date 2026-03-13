@@ -112,7 +112,7 @@ const onSubmit = async (event) => {
             @input="macMask"
             @complete="
               // focus next invalid input or submit form if all valid
-              $event.target.form.querySelector(':invalid').focus()
+              $event.target.form.querySelector(':invalid')?.focus()
             "
             @keyup.esc="newDeviceMac = ''"
           >
