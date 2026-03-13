@@ -55,6 +55,18 @@ export class GamepadDS3Service {
     this.changeCallbacks.push(callback)
   }
 
+  arraysEqual (a, b) {
+    if (a === b) return true
+    if (!a || !b) return false
+    if (a.length !== b.length) return false
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) {
+        return false
+      }
+    }
+    return true
+  }
+
   pollGamepad () {
     const currentGamepad = navigator.getGamepads()
       .find(gp => gp?.id.includes('PLAYSTATION(R)3 Controller'))
@@ -63,8 +75,8 @@ export class GamepadDS3Service {
       const newButtons = currentGamepad.buttons.map(btn => btn.pressed)
       const newAxes = currentGamepad.axes.slice().map(value => Math.abs(value) < 0.1 ? 0 : value)
       
-      const hasChanged = JSON.stringify(newButtons) !== JSON.stringify(this.buttons) ||
-        JSON.stringify(newAxes) !== JSON.stringify(this.axes)
+      const hasChanged = !this.arraysEqual(this.buttons, newButtons) ||
+        !this.arraysEqual(this.axes, newAxes)
 
       if (hasChanged) {
          this.buttons = newButtons
